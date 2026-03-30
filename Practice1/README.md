@@ -1,7 +1,5 @@
 # Practice 1 — pyserial + Arduino (LED + servo)
 
-## English
-
 ### What this is
 
 A minimal **serial** link between **Python** ([pyserial](https://pyserial.readthedocs.io/)) and an **Arduino**: turn the **built-in LED** on/off and set a **servo** angle (0–180°).
@@ -30,10 +28,10 @@ The sketch replies with short lines like `OK LED` / `OK SERVO` for debugging.
 
 ### Python
 
+With a virtual environment (see the workshop root `README.md`):
+
 ```bash
-cd "Practice 1"
-python3 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+cd Practice1
 pip install -r requirements.txt
 cd python
 python control.py
@@ -56,63 +54,7 @@ python control.py COM3                    # Windows
 
 ---
 
-## Español
-
-### Qué es esto
-
-Un enlace **serie** mínimo entre **Python** ([pyserial](https://pyserial.readthedocs.io/es/latest/)) y un **Arduino**: encender/apagar el **LED integrado** y mover un **servomotor** (0–180°).
-
-### Hardware
-
-- Arduino Uno (o compatible)
-- Cable USB
-- Servo: señal → **D9** (cambia `SERVO_PIN` en el sketch si hace falta), **VCC** → **5V**, **GND** → **GND**  
-  *Nota: si el servo consume mucha corriente, usa fuente externa 5V y **GND común** con el Arduino.*
-
-### Arduino
-
-1. Abre `arduino/serial_led_servo/serial_led_servo.ino` en el Arduino IDE.
-2. Elige placa y puerto, sube el programa.
-
-**Protocolo serie** (9600 baudios, cada comando termina en salto de línea `\n`):
-
-| Comando | Acción |
-|--------|--------|
-| `L1` | LED encendido |
-| `L0` | LED apagado |
-| `S0` … `S180` | Ángulo del servo (limitado 0–180) |
-
-El sketch responde con líneas cortas (`OK LED`, `OK SERVO`) para depurar.
-
-### Python
-
-```bash
-cd "Practice 1"
-python3 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cd python
-python control.py
-```
-
-Si hace falta, indica el puerto:
-
-```bash
-python control.py /dev/cu.usbmodem1101
-python control.py COM3
-```
-
-**Puerto:** en macOS/Linux suele ser `cu.usbmodem*` o `ttyUSB0`; en Windows, `COMx` en el Administrador de dispositivos.
-
-### Rol de pyserial
-
-- `serial.Serial(puerto, baudios)` abre el puerto.
-- `write(b"...\n")` envía bytes; el Arduino lee líneas.
-- Tras abrir el puerto, muchas placas se **reinician**; un `sleep` breve deja terminar el `setup()`.
-
----
-
-## Files / Archivos
+## Files
 
 | Path | Description |
 |------|-------------|

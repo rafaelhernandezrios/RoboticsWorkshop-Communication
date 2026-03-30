@@ -134,4 +134,3 @@ deactivate
 ```
 
 This works the same on **macOS** and **Windows** once the venv was activated.
-# RoboticsWorkshop-Communication

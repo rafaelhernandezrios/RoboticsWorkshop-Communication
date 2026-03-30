@@ -16,22 +16,22 @@ Learn the basics of **TCP sockets** in Python: a **server** waits for a connecti
 **Terminal 1 (server):**
 
 ```bash
-cd "Practice 2"
+cd Practice2
 python3 server.py
 ```
 
-Optional: `python3 server.py --host 127.0.0.1 --port 5000`
+Optional: `python3 server.py --host 127.0.0.1 --port 5001`
 
 **Terminal 2 (client):**
 
 ```bash
-cd "Practice 2"
+cd Practice2
 python3 client.py
 ```
 
-The client defaults to `127.0.0.1:5000`. If you change the port, use the same value on both sides:
+The client defaults to `127.0.0.1:5001`. If you change the port, use the same value on both sides:
 
-`python3 client.py --host 127.0.0.1 --port 5000`
+`python3 client.py --host 127.0.0.1 --port 5001`
 
 Type a line and press **Enter** to send. Type **`quit`** or **Ctrl+C** to exit.
 

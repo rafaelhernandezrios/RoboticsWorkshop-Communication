@@ -28,7 +28,7 @@ def recv_loop(sock: socket.socket, stop: threading.Event) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="TCP client")
     parser.add_argument("--host", default="127.0.0.1", help="Server IP address")
-    parser.add_argument("--port", type=int, default=5001, help="Port (default 5000)")
+    parser.add_argument("--port", type=int, default=5001, help="Port (default 5001)")
     args = parser.parse_args()
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
