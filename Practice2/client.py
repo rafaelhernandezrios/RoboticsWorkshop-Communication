@@ -11,14 +11,21 @@ import threading
 
 
 def recv_loop(sock: socket.socket, stop: threading.Event) -> None:
+    buffer = b""
     try:
         while not stop.is_set():
             data = sock.recv(4096)
             if not data:
                 print("\n[Server closed the connection]")
                 break
-            text = data.decode("utf-8", errors="replace").rstrip("\n\r")
-            print(f"\n<server> {text}")
+            buffer += data
+            while b"\n" in buffer:
+                line_bytes, buffer = buffer.split(b"\n", 1)
+                line_bytes = line_bytes.rstrip(b"\r")
+                if not line_bytes:
+                    continue
+                text = line_bytes.decode("utf-8", errors="replace")
+                print(f"\n{text}")
     except OSError:
         pass
     finally:
@@ -27,7 +34,7 @@ def recv_loop(sock: socket.socket, stop: threading.Event) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="TCP client")
-    parser.add_argument("--host", default="127.0.0.1", help="Server IP address")
+    parser.add_argument("--host", default="192.168.0.17", help="Server IP address")
     parser.add_argument("--port", type=int, default=5001, help="Port (default 5001)")
     args = parser.parse_args()
 
