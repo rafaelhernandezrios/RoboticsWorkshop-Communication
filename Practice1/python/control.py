@@ -1,83 +1,60 @@
 #!/usr/bin/env python3
 """
-Control Arduino LED + servo via pyserial.
-Usage:
-  python control.py                    # uses default port (edit SERIAL_PORT)
-  python control.py /dev/cu.usbmodem*  # or pass port as first argument
+Simple example: control Arduino over serial with pyserial.
+
+Set SERIAL_PORT for your OS:
+  Windows:       COM3   (or whatever appears in Device Manager)
+  macOS:         /dev/cu.usbmodem1101   (or run: ls /dev/cu.*)
+  Linux:         /dev/ttyUSB0           (or: ls /dev/ttyUSB*)
+
+Replace SERIAL_PORT below, then run:
+  python control.py
+
+Type commands such as L1, L0, S90 and press Enter to send them.
+Type 'exit' to quit.
 """
 
-import argparse
 import sys
 import time
-from typing import Optional
 
 try:
     import serial
-    import serial.tools.list_ports
 except ImportError:
-    print("Install dependencies: pip install -r requirements.txt")
+    print("Install pyserial: pip install pyserial")
     sys.exit(1)
 
-# Default: change to your port (macOS often /dev/cu.usbmodem*, Windows COM3, Linux /dev/ttyUSB0)
-DEFAULT_BAUD = 9600
+# SERIAL_PORT = "COM3"          # Windows
+SERIAL_PORT = "/dev/tty.usbmodemF412FA6EE7842"   # macOS
+# SERIAL_PORT = "/dev/ttyUSB0"           # Linux
 
+BAUDRATE = 9600
 
-def pick_default_port() -> Optional[str]:
-    ports = list(serial.tools.list_ports.comports())
-    if not ports:
-        return None
-    # Prefer common USB-serial chips if multiple
-    for p in ports:
-        desc = (p.description or "") + (p.manufacturer or "")
-        if "Arduino" in desc or "CH340" in desc or "CP210" in desc or "FTDI" in desc:
-            return p.device
-    return ports[0].device
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="LED + servo over serial")
-    parser.add_argument(
-        "port",
-        nargs="?",
-        default=None,
-        help="Serial port (e.g. /dev/cu.usbmodem1101 or COM3)",
-    )
-    parser.add_argument("--baud", type=int, default=DEFAULT_BAUD)
-    args = parser.parse_args()
-
-    port = args.port or pick_default_port()
-    if not port:
-        print("No serial port found. Connect Arduino and try again.")
+def main():
+    try:
+        ser = serial.Serial(SERIAL_PORT, BAUDRATE, timeout=1)
+    except serial.SerialException as e:
+        print(f"Could not open port {SERIAL_PORT}: {e}")
         sys.exit(1)
 
-    print(f"Opening {port} @ {args.baud} baud...")
-    ser = serial.Serial(port, args.baud, timeout=1)
-    time.sleep(2)  # allow Arduino reset after opening port
+    print(f"Connected to {SERIAL_PORT} @ {BAUDRATE} baud.")
+    print("Type commands like L1, L0, S90, press Enter (type 'exit' to quit)")
+    time.sleep(2)  # Wait for Arduino reset after opening serial
 
-    def send(cmd: str) -> None:
-        line = cmd if cmd.endswith("\n") else cmd + "\n"
-        ser.write(line.encode("ascii"))
-        ser.flush()
-        if ser.in_waiting:
-            print(ser.read(ser.in_waiting).decode("utf-8", errors="replace").strip())
+    while True:
+        try:
+            cmd = input(">> ").strip()
+            if cmd.lower() == "exit":
+                break
+            if cmd:
+                ser.write((cmd + "\n").encode("ascii"))
+                time.sleep(0.1)
+                if ser.in_waiting:
+                    print("[Arduino] " + ser.read(ser.in_waiting).decode("utf-8", errors="replace").strip())
+        except KeyboardInterrupt:
+            break
 
-    print("Blink LED, then sweep servo...")
-    send("L1")
-    time.sleep(0.5)
-    send("L0")
-    time.sleep(0.5)
-    send("L1")
-    time.sleep(0.3)
-    send("L0")
-
-    for a in (0, 45, 90, 135, 180, 90):
-        send(f"S{a}")
-        time.sleep(0.6)
-
-    send("L1")
-    print("Done.")
     ser.close()
-
+    print("Connection closed.")
 
 if __name__ == "__main__":
     main()
